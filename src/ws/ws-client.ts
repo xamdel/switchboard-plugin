@@ -13,8 +13,9 @@ export type ConnectionStatus = "connecting" | "authenticating" | "connected" | "
 
 export interface PluginClientConfig {
   serverUrl: string; // ws://host:port
-  apiKey: string; // sb_plugin_... key
+  jwt: string; // JWT token for auth
   onStatusChange: (status: ConnectionStatus, pluginId: string | null, requestCount: number) => void;
+  onJwtRefresh?: (newJwt: string) => void; // callback when server sends a refresh
   reconnectPolicy?: BackoffPolicy; // defaults to DEFAULT_RECONNECT_POLICY
   openClawConfig: OpenClawClientConfig; // OpenClaw Gateway connection settings
 }
@@ -33,7 +34,7 @@ export class PluginClient {
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly policy: BackoffPolicy;
 
-  constructor(private readonly config: PluginClientConfig) {
+  constructor(private config: PluginClientConfig) {
     this.policy = config.reconnectPolicy ?? DEFAULT_RECONNECT_POLICY;
   }
 
@@ -86,7 +87,7 @@ export class PluginClient {
       this.setStatus("authenticating");
       this.sendMessage({
         type: "auth",
-        apiKey: this.config.apiKey,
+        jwt: this.config.jwt,
         protocol: SWITCHBOARD_PROTOCOL_VERSION,
       });
     });
@@ -134,13 +135,19 @@ export class PluginClient {
         break;
 
       case "auth_error":
-        this.closed = true; // Do NOT reconnect — key is wrong
+        this.closed = true; // Do NOT reconnect — auth is invalid
         if (this.ws) {
           this.ws.close(1000, "auth failed");
           this.ws = null;
         }
         this.setStatus("disconnected");
         console.error(`Authentication failed: ${msg.message}`);
+        break;
+
+      case "jwt_refresh":
+        // Update the JWT for future reconnections
+        this.config = { ...this.config, jwt: msg.jwt };
+        this.config.onJwtRefresh?.(msg.jwt);
         break;
 
       case "ping":

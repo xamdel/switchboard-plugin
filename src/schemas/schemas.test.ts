@@ -16,8 +16,8 @@ describe("Schema copy integrity", () => {
     expect(SCHEMA_VERSION).toBe(1);
   });
 
-  it("SWITCHBOARD_PROTOCOL_VERSION equals 1 (matches server)", () => {
-    expect(SWITCHBOARD_PROTOCOL_VERSION).toBe(1);
+  it("SWITCHBOARD_PROTOCOL_VERSION equals 2 (matches server)", () => {
+    expect(SWITCHBOARD_PROTOCOL_VERSION).toBe(2);
   });
 });
 
@@ -53,7 +53,7 @@ describe("Plugin receives server messages (ServerMessageSchema)", () => {
     const result = ServerMessageSchema.safeParse({
       type: "auth_ok",
       pluginId: "p-1",
-      protocol: 1,
+      protocol: 2,
     });
     expect(result.success).toBe(true);
     if (result.success) {
@@ -64,11 +64,22 @@ describe("Plugin receives server messages (ServerMessageSchema)", () => {
   it("parses an auth_error message", () => {
     const result = ServerMessageSchema.safeParse({
       type: "auth_error",
-      message: "Invalid key",
+      message: "Invalid token",
     });
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.type).toBe("auth_error");
+    }
+  });
+
+  it("parses a jwt_refresh message", () => {
+    const result = ServerMessageSchema.safeParse({
+      type: "jwt_refresh",
+      jwt: "eyJhbGciOiJFUzI1NiJ9.new-token",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.type).toBe("jwt_refresh");
     }
   });
 
@@ -85,11 +96,11 @@ describe("Plugin receives server messages (ServerMessageSchema)", () => {
 // ---------------------------------------------------------------------------
 
 describe("Plugin sends messages (PluginMessageSchema)", () => {
-  it("parses auth message", () => {
+  it("parses auth message with JWT", () => {
     const result = PluginMessageSchema.safeParse({
       type: "auth",
-      apiKey: "sb_plugin_test123",
-      protocol: 1,
+      jwt: "eyJhbGciOiJFUzI1NiJ9.test-token",
+      protocol: 2,
     });
     expect(result.success).toBe(true);
     if (result.success) {
@@ -164,8 +175,17 @@ describe("Plugin sends messages (PluginMessageSchema)", () => {
   it("rejects auth with wrong protocol version", () => {
     const result = PluginMessageSchema.safeParse({
       type: "auth",
-      apiKey: "key",
+      jwt: "token",
       protocol: 999,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects auth with old apiKey field", () => {
+    const result = PluginMessageSchema.safeParse({
+      type: "auth",
+      apiKey: "sb_plugin_test123",
+      protocol: 2,
     });
     expect(result.success).toBe(false);
   });

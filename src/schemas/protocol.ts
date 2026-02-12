@@ -6,7 +6,7 @@ import { z } from "zod";
 // Protocol Version (PROT-03)
 // ---------------------------------------------------------------------------
 
-export const SWITCHBOARD_PROTOCOL_VERSION = 1 as const;
+export const SWITCHBOARD_PROTOCOL_VERSION = 2 as const;
 
 // ---------------------------------------------------------------------------
 // Server -> Plugin Messages
@@ -34,11 +34,17 @@ export const ServerAuthErrorMessageSchema = z.strictObject({
   message: z.string(),
 });
 
+export const ServerJwtRefreshMessageSchema = z.strictObject({
+  type: z.literal("jwt_refresh"),
+  jwt: z.string().min(1),
+});
+
 export const ServerMessageSchema = z.discriminatedUnion("type", [
   ServerRequestMessageSchema,
   ServerPingMessageSchema,
   ServerAuthOkMessageSchema,
   ServerAuthErrorMessageSchema,
+  ServerJwtRefreshMessageSchema,
 ]);
 
 export type ServerMessage = z.infer<typeof ServerMessageSchema>;
@@ -46,6 +52,7 @@ export type ServerRequestMessage = z.infer<typeof ServerRequestMessageSchema>;
 export type ServerPingMessage = z.infer<typeof ServerPingMessageSchema>;
 export type ServerAuthOkMessage = z.infer<typeof ServerAuthOkMessageSchema>;
 export type ServerAuthErrorMessage = z.infer<typeof ServerAuthErrorMessageSchema>;
+export type ServerJwtRefreshMessage = z.infer<typeof ServerJwtRefreshMessageSchema>;
 
 // ---------------------------------------------------------------------------
 // Plugin -> Server Messages
@@ -53,7 +60,7 @@ export type ServerAuthErrorMessage = z.infer<typeof ServerAuthErrorMessageSchema
 
 export const PluginAuthMessageSchema = z.strictObject({
   type: z.literal("auth"),
-  apiKey: z.string().min(1),
+  jwt: z.string().min(1),
   protocol: z.literal(SWITCHBOARD_PROTOCOL_VERSION),
 });
 

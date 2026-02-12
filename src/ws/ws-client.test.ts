@@ -91,7 +91,7 @@ describe("PluginClient", () => {
   function createClient(overrides?: Partial<PluginClientConfig>): PluginClient {
     client = new PluginClient({
       serverUrl: url,
-      apiKey: "sb_plugin_test123",
+      jwt: "eyJhbGciOiJFUzI1NiJ9.test-token",
       onStatusChange: (status, pluginId, requestCount) => {
         statusChanges.push({ status, pluginId, requestCount });
       },
@@ -117,10 +117,10 @@ describe("PluginClient", () => {
     client.start();
 
     const serverWs = await connPromise;
-    const msg = await waitForMessage(serverWs) as { type: string; apiKey: string; protocol: number };
+    const msg = await waitForMessage(serverWs) as { type: string; jwt: string; protocol: number };
 
     expect(msg.type).toBe("auth");
-    expect(msg.apiKey).toBe("sb_plugin_test123");
+    expect(msg.jwt).toBe("eyJhbGciOiJFUzI1NiJ9.test-token");
     expect(msg.protocol).toBe(SWITCHBOARD_PROTOCOL_VERSION);
   });
 
