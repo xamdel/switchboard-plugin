@@ -6,6 +6,7 @@ if (command === "setup") {
   const { runSetup } = await import("./setup.js");
   await runSetup();
 } else if (command === "start") {
+  // @ts-expect-error — start.ts created in Plan 11-03
   const { runStart } = await import("./start.js");
   await runStart();
 } else {
