@@ -1,0 +1,78 @@
+// ---------------------------------------------------------------------------
+// OpenClaw plugin entry point — registers Switchboard as a model provider
+// ---------------------------------------------------------------------------
+
+import { loadConfig } from "../config/store.js";
+import { fetchProviderCatalog, buildModelList } from "./discovery.js";
+
+// ---------------------------------------------------------------------------
+// Types (minimal OpenClaw plugin API surface)
+// ---------------------------------------------------------------------------
+
+export interface OpenClawModelConfig {
+  baseUrl: string;
+  apiKey: string;
+  api: string;
+  models: Array<{ id: string; name: string }>;
+}
+
+export interface OpenClawProviderRegistration {
+  id: string;
+  label: string;
+  models: OpenClawModelConfig;
+  auth: unknown[];
+}
+
+export interface OpenClawPluginApi {
+  registerProvider(registration: OpenClawProviderRegistration): void;
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Derive the HTTP base URL for OpenResponses API calls from the config's
+ * server URL (which may be WS or HTTP).
+ */
+function httpUrlFromConfig(serverUrl: string): string {
+  return serverUrl
+    .replace(/^wss:/, "https:")
+    .replace(/^ws:/, "http:")
+    .replace(/\/$/, "");
+}
+
+// ---------------------------------------------------------------------------
+// Register
+// ---------------------------------------------------------------------------
+
+/**
+ * Register Switchboard as an OpenClaw model provider.
+ *
+ * Reads config from ~/.switchboard/config.json. If no JWT is present
+ * (plugin hasn't authenticated yet), silently skips registration.
+ *
+ * Model list is fetched best-effort from GET /v1/providers. Stale data
+ * only affects autocomplete — OpenClaw sends any model string and the
+ * server returns 404 for unknown agents.
+ */
+export async function register(api: OpenClawPluginApi): Promise<void> {
+  const config = await loadConfig();
+  if (!config?.jwt) return;
+
+  const baseUrl = httpUrlFromConfig(config.serverUrl);
+  const providers = await fetchProviderCatalog(baseUrl);
+  const models = buildModelList(providers);
+
+  api.registerProvider({
+    id: "switchboard",
+    label: "Switchboard",
+    models: {
+      baseUrl,
+      apiKey: config.jwt,
+      api: "openai-responses",
+      models,
+    },
+    auth: [],
+  });
+}

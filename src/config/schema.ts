@@ -26,6 +26,12 @@ export const ConfigSchema = z.object({
   // OpenClaw Gateway
   openClawToken: z.string().min(1),
   openClawUrl: z.string().url().default("http://localhost:18789"),
+
+  // JWT for OpenClaw provider registration (persisted after auth)
+  jwt: z.string().optional(),
+
+  // Default model name for OpenClaw forwarding (optional override)
+  defaultModel: z.string().optional(),
 });
 
 export type SwitchboardConfig = z.infer<typeof ConfigSchema>;

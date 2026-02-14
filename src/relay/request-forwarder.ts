@@ -23,6 +23,13 @@ export async function handleIncomingRequest(
   try {
     // Clone the body to avoid mutating the original
     const forwardBody = { ...(body as Record<string, unknown>) };
+
+    // Handle "default" model sentinel: remove model field so OpenClaw uses
+    // the agent's configured default model
+    if (forwardBody.model === "default") {
+      delete forwardBody.model;
+    }
+
     const isStreaming = forwardBody.stream === true;
 
     // NOTE: tools are passed through as-is. The switchboard-default agent has

@@ -7,7 +7,7 @@ import {
   log,
   outro,
 } from "@clack/prompts";
-import { loadConfig, loadKeystore } from "../config/store.js";
+import { loadConfig, loadKeystore, saveConfig } from "../config/store.js";
 import { createCdpSigner } from "../wallet/cdp-signer.js";
 import { createLocalSigner } from "../wallet/local-signer.js";
 import { decryptKeystore } from "../wallet/keystore.js";
@@ -104,6 +104,9 @@ export async function runStart(): Promise<void> {
     if (authResult.agentId && authResult.agentId !== authResult.walletAddress) {
       log.info(`Agent ID: ${authResult.agentId}`);
     }
+
+    // Persist JWT to config for OpenClaw provider registration
+    await saveConfig({ ...config, jwt: authJwt });
   } catch (err) {
     authSpinner.stop("Authentication failed");
     log.error((err as Error).message);
