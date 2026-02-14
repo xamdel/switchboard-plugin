@@ -159,7 +159,7 @@ onboard_openclaw() {
   ui_info "This is interactive — follow the prompts to configure OpenClaw."
   printf "\n"
 
-  openclaw onboard --install-daemon
+  openclaw onboard --install-daemon </dev/tty
 }
 
 # ---------------------------------------------------------------------------
@@ -269,7 +269,7 @@ run_setup_wizard() {
   printf "\n"
 
   cd "$PLUGIN_DIR"
-  SIXERR_OPENCLAW_TOKEN="${GATEWAY_TOKEN:-}" npx tsx src/cli/cli.ts setup
+  SIXERR_OPENCLAW_TOKEN="${GATEWAY_TOKEN:-}" npx tsx src/cli/cli.ts setup </dev/tty
 }
 
 # ---------------------------------------------------------------------------
