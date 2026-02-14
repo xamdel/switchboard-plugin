@@ -17,7 +17,7 @@ curl -fsSL https://raw.githubusercontent.com/xamdel/switchboard-plugin/main/inst
 Then start the plugin:
 
 ```bash
-cd ~/switchboard/plugin && npx tsx src/cli/cli.ts start
+switchboard start
 ```
 
 ### Manual Install

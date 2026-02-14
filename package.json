@@ -5,6 +5,9 @@
   "engines": {
     "node": ">=22.12.0"
   },
+  "bin": {
+    "switchboard": "src/cli/cli.ts"
+  },
   "scripts": {
     "setup": "tsx src/cli/cli.ts setup",
     "start": "tsx src/cli/cli.ts start",

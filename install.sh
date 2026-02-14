@@ -235,7 +235,17 @@ install_plugin() {
   ui_info "Installing dependencies (npm install)"
   npm install
 
-  ui_success "Plugin installed"
+  # Create CLI wrapper at ~/.local/bin/switchboard
+  mkdir -p "$BIN_DIR"
+  cat > "$BIN_DIR/switchboard" <<'WRAPPER'
+#!/usr/bin/env bash
+set -euo pipefail
+PLUGIN_DIR="$HOME/switchboard/plugin"
+exec npx --prefix "$PLUGIN_DIR" tsx "$PLUGIN_DIR/src/cli/cli.ts" "$@"
+WRAPPER
+  chmod +x "$BIN_DIR/switchboard"
+
+  ui_success "Plugin installed — CLI at $BIN_DIR/switchboard"
 }
 
 # ---------------------------------------------------------------------------
@@ -263,7 +273,7 @@ main() {
   printf "${BOLD}${CYAN}  ╚═══════════════════════════════════════╝${RESET}\n"
   printf "\n"
   printf "  ${DIM}Install dir:  ~/switchboard/${RESET}\n"
-  printf "  ${DIM}CLI wrapper:  ~/.local/bin/openclaw${RESET}\n"
+  printf "  ${DIM}CLI wrappers: ~/.local/bin/openclaw, ~/.local/bin/switchboard${RESET}\n"
   printf "\n"
 
   check_prereqs
@@ -276,7 +286,7 @@ main() {
   printf "\n"
   ui_section "All done!"
   printf "  To start monetizing your agent's downtime:\n"
-  printf "    ${BOLD}cd ~/switchboard/plugin && npx tsx src/cli/cli.ts start${RESET}\n"
+  printf "    ${BOLD}switchboard start${RESET}\n"
   printf "\n"
 }
 

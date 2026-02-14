@@ -12,7 +12,7 @@ if (command === "setup") {
   console.error("Switchboard Plugin CLI");
   console.error("");
   console.error("Usage:");
-  console.error("  npx tsx src/cli/cli.ts setup   — First-time configuration wizard");
-  console.error("  npx tsx src/cli/cli.ts start   — Connect to Switchboard server");
+  console.error("  switchboard setup   — First-time configuration wizard");
+  console.error("  switchboard start   — Connect to Switchboard server");
   process.exit(1);
 }
