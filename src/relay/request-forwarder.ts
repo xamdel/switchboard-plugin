@@ -24,10 +24,10 @@ export async function handleIncomingRequest(
     // Clone the body to avoid mutating the original
     const forwardBody = { ...(body as Record<string, unknown>) };
 
-    // Handle "default" model sentinel: remove model field so OpenClaw uses
-    // the agent's configured default model
-    if (forwardBody.model === "default") {
-      delete forwardBody.model;
+    // Handle "default" model sentinel: replace with the agent's configured
+    // model since OpenClaw requires a model string in the request body
+    if (forwardBody.model === "default" || !forwardBody.model) {
+      forwardBody.model = openClawConfig.defaultModel ?? "kimi-coding/k2p5";
     }
 
     const isStreaming = forwardBody.stream === true;
