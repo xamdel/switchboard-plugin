@@ -25,7 +25,7 @@ export async function handleIncomingRequest(
     const forwardBody = { ...(body as Record<string, unknown>) };
     const isStreaming = forwardBody.stream === true;
 
-    // NOTE: tools are passed through as-is. The compute-relay agent has
+    // NOTE: tools are passed through as-is. The switchboard-default agent has
     // tools deny [*] configured in OpenClaw, which prevents execution on
     // the plugin owner's machine. clientTools conversion is handled by
     // the OpenClaw gateway based on agent config.

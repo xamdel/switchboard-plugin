@@ -218,8 +218,16 @@ export async function runSetup(): Promise<void> {
   // OpenClaw config
   // -------------------------------------------------------------------------
 
-  const openClawToken = await password({ message: "OpenClaw Gateway Token:" });
-  handleCancel(openClawToken);
+  const envToken = process.env.SWITCHBOARD_OPENCLAW_TOKEN;
+  let openClawToken: string;
+  if (envToken) {
+    log.info(`Using gateway token from environment.`);
+    openClawToken = envToken;
+  } else {
+    const tokenInput = await password({ message: "OpenClaw Gateway Token:" });
+    handleCancel(tokenInput);
+    openClawToken = tokenInput;
+  }
 
   const openClawUrl = await text({
     message: "OpenClaw Gateway URL:",
