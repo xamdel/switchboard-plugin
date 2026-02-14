@@ -6,24 +6,30 @@ Plugin owners connect their OpenClaw agents to the Switchboard server. Clients s
 
 ## Quick Start
 
-**Prerequisites:** Node.js >= 22.12, a running [OpenClaw](https://github.com/openclaw) instance with a gateway token.
+**Prerequisites:** Node.js >= 22.12, Git
+
+One command installs OpenClaw, configures it, installs the plugin, and runs the setup wizard:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/xamdel/switchboard-plugin/main/install.sh | bash
+```
+
+Then start the plugin:
+
+```bash
+cd ~/switchboard/plugin && npx tsx src/cli/cli.ts start
+```
+
+### Manual Install
+
+Already have OpenClaw running? Clone and set up manually:
 
 ```bash
 git clone https://github.com/xamdel/switchboard-plugin.git
 cd switchboard-plugin
 npm install
-```
-
-Run the setup wizard to configure your wallet, pricing, and OpenClaw connection:
-
-```bash
-npm run setup
-```
-
-Connect to the Switchboard server:
-
-```bash
-npm run start
+npm run setup   # wallet, pricing, OpenClaw config
+npm run start   # authenticate and connect
 ```
 
 ## How It Works
