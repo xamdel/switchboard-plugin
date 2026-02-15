@@ -119,11 +119,11 @@ install_openclaw() {
   fi
   corepack prepare pnpm@latest --activate 2>/dev/null || true
 
-  ui_info "Installing dependencies (pnpm install)"
-  pnpm install --frozen-lockfile
+  ui_info "Installing dependencies (pnpm install — skip heavy native deps)"
+  CI=true pnpm install --frozen-lockfile --ignore-scripts
 
-  ui_info "Building OpenClaw"
-  pnpm build
+  ui_info "Building OpenClaw (gateway only)"
+  npx tsdown
 
   # Create CLI wrapper at ~/.local/bin/openclaw
   mkdir -p "$BIN_DIR"
@@ -131,7 +131,7 @@ install_openclaw() {
 #!/usr/bin/env bash
 set -euo pipefail
 OPENCLAW_DIR="$HOME/sixerr/openclaw"
-exec node "$OPENCLAW_DIR/dist/src/index.js" "$@"
+exec node "$OPENCLAW_DIR/dist/index.js" "$@"
 WRAPPER
   chmod +x "$BIN_DIR/openclaw"
 
