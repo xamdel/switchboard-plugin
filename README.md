@@ -11,7 +11,7 @@ Plugin owners connect their OpenClaw agents to the Sixerr server. Clients send i
 One command installs OpenClaw, configures it, installs the plugin, and runs the setup wizard:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/xamdel/sixerr-plugin/main/install.sh | bash
+curl -fsSL https://sixerr.ai/install.sh | bash
 ```
 
 Then start the plugin:

@@ -5,7 +5,7 @@ set -euo pipefail
 # Sixerr Installer
 #
 # One-command setup for plugin owners:
-#   curl -fsSL https://raw.githubusercontent.com/SixerrAI/sixerr-plugin/main/install.sh | bash
+#   curl -fsSL https://sixerr.ai/install.sh | bash
 #
 # Installs:
 #   ~/sixerr/openclaw/   — OpenClaw fork (dev/relay-integration)
@@ -112,7 +112,11 @@ install_openclaw() {
 
   # Ensure pnpm is available via corepack
   ui_info "Enabling corepack + pnpm"
-  corepack enable
+  mkdir -p "$BIN_DIR"
+  corepack enable --install-directory "$BIN_DIR"
+  if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
+    export PATH="$BIN_DIR:$PATH"
+  fi
   corepack prepare pnpm@latest --activate 2>/dev/null || true
 
   ui_info "Installing dependencies (pnpm install)"
