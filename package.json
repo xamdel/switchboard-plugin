@@ -6,7 +6,9 @@
     "node": ">=22.12.0"
   },
   "exports": {
-    "./openclaw": "./src/openclaw/index.ts"
+    "./openclaw": "./src/openclaw/index.ts",
+    "./client": "./src/client/index.ts",
+    "./setup": "./src/config/setup-programmatic.ts"
   },
   "bin": {
     "sixerr": "src/cli/cli.ts"

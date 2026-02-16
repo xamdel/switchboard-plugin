@@ -2,10 +2,16 @@
 
 async function main() {
   const command = process.argv[2];
+  const flags = process.argv.slice(3);
 
   if (command === "setup") {
-    const { runSetup } = await import("./setup.js");
-    await runSetup();
+    if (flags.includes("--non-interactive")) {
+      const { runSetupNonInteractive } = await import("./setup-non-interactive.js");
+      await runSetupNonInteractive();
+    } else {
+      const { runSetup } = await import("./setup.js");
+      await runSetup();
+    }
   } else if (command === "start") {
     const { runStart } = await import("./start.js");
     await runStart();
@@ -13,8 +19,9 @@ async function main() {
     console.error("Sixerr Plugin CLI");
     console.error("");
     console.error("Usage:");
-    console.error("  sixerr setup   — First-time configuration wizard");
-    console.error("  sixerr start   — Connect to Sixerr server");
+    console.error("  sixerr setup                  — Interactive configuration wizard");
+    console.error("  sixerr setup --non-interactive — Headless setup from env vars");
+    console.error("  sixerr start                  — Connect to Sixerr server");
     process.exit(1);
   }
 }
