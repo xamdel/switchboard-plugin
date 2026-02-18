@@ -41,6 +41,28 @@ ui_warn()    { printf "${YELLOW}⚠${RESET}  %s\n" "$1"; }
 ui_error()   { printf "${RED}✖${RESET}  %s\n" "$1" >&2; }
 ui_section() { printf "\n${BOLD}${CYAN}▸ %s${RESET}\n\n" "$1"; }
 
+# Run a command with retry-on-failure. Usage: retry_interactive "label" command args...
+retry_interactive() {
+  local label="$1"; shift
+  while true; do
+    if "$@"; then
+      return 0
+    fi
+    printf "\n"
+    ui_error "$label failed."
+    printf "     ${BOLD}r${RESET} — retry  |  ${BOLD}s${RESET} — skip  |  ${BOLD}q${RESET} — quit\n"
+    printf "     Choice: "
+    local choice
+    read -r choice </dev/tty
+    case "$choice" in
+      r|R) ui_info "Retrying..." ;;
+      s|S) ui_warn "Skipping $label — you can re-run this installer later to retry."; return 0 ;;
+      q|Q) ui_error "Installer aborted."; exit 1 ;;
+      *)   ui_info "Retrying..." ;;
+    esac
+  done
+}
+
 # ---------------------------------------------------------------------------
 # Prerequisites
 # ---------------------------------------------------------------------------
@@ -119,11 +141,19 @@ install_openclaw() {
   fi
   corepack prepare pnpm@latest --activate 2>/dev/null || true
 
-  ui_info "Installing dependencies (pnpm install — skip heavy native deps)"
-  CI=true pnpm install --frozen-lockfile --ignore-scripts
+  if [ -d "node_modules" ]; then
+    ui_info "Dependencies already installed — skipping pnpm install"
+  else
+    ui_info "Installing dependencies (pnpm install — skip heavy native deps)"
+    CI=true pnpm install --frozen-lockfile --ignore-scripts
+  fi
 
-  ui_info "Building OpenClaw (gateway only)"
-  npx tsdown
+  if [ -d "dist" ] && [ -f "dist/index.js" ]; then
+    ui_info "OpenClaw already built — skipping build"
+  else
+    ui_info "Building OpenClaw (gateway only)"
+    npx tsdown
+  fi
 
   # Create CLI wrapper at ~/.local/bin/openclaw
   mkdir -p "$BIN_DIR"
@@ -163,7 +193,7 @@ onboard_openclaw() {
   ui_info "This is interactive — follow the prompts to configure OpenClaw."
   printf "\n"
 
-  openclaw onboard --install-daemon </dev/tty
+  retry_interactive "OpenClaw onboarding" openclaw onboard --install-daemon </dev/tty
 }
 
 # ---------------------------------------------------------------------------
@@ -247,8 +277,12 @@ install_plugin() {
 
   cd "$PLUGIN_DIR"
 
-  ui_info "Installing dependencies (npm install)"
-  npm install
+  if [ -d "node_modules" ]; then
+    ui_info "Dependencies already installed — skipping npm install"
+  else
+    ui_info "Installing dependencies (npm install)"
+    npm install
+  fi
 
   # Create CLI wrapper at ~/.local/bin/sixerr
   mkdir -p "$BIN_DIR"
@@ -273,7 +307,7 @@ run_setup_wizard() {
   printf "\n"
 
   cd "$PLUGIN_DIR"
-  SIXERR_OPENCLAW_TOKEN="${GATEWAY_TOKEN:-}" npx tsx src/cli/cli.ts setup </dev/tty
+  retry_interactive "Plugin setup" env SIXERR_OPENCLAW_TOKEN="${GATEWAY_TOKEN:-}" npx tsx src/cli/cli.ts setup </dev/tty
 }
 
 # ---------------------------------------------------------------------------

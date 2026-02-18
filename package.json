@@ -8,13 +8,15 @@
   "exports": {
     "./openclaw": "./src/openclaw/index.ts",
     "./client": "./src/client/index.ts",
-    "./setup": "./src/config/setup-programmatic.ts"
+    "./setup": "./src/config/setup-programmatic.ts",
+    "./start": "./src/start-programmatic.ts"
   },
   "bin": {
     "sixerr": "src/cli/cli.ts"
   },
   "scripts": {
     "setup": "tsx src/cli/cli.ts setup",
+    "setup:headless": "tsx src/cli/cli.ts setup --non-interactive",
     "start": "tsx src/cli/cli.ts start",
     "test": "vitest run",
     "test:watch": "vitest",

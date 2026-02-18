@@ -67,11 +67,22 @@ export async function runStart(): Promise<void> {
       process.exit(1);
     }
   } else {
-    // Local or imported wallet — prompt for password
-    const pwd = await password({ message: "Enter wallet password:" });
-    if (isCancel(pwd)) {
-      cancel("Cancelled.");
-      process.exit(0);
+    // Local or imported wallet — need password
+    let pwd: string;
+    const envPwd = process.env.SIXERR_KEYSTORE_PASSWORD;
+    if (envPwd) {
+      pwd = envPwd;
+    } else if (process.stdin.isTTY) {
+      const prompted = await password({ message: "Enter wallet password:" });
+      if (isCancel(prompted)) {
+        cancel("Cancelled.");
+        process.exit(0);
+      }
+      pwd = prompted;
+    } else {
+      log.error("No TTY available and SIXERR_KEYSTORE_PASSWORD not set.");
+      log.error("Set the env var or run in an interactive terminal.");
+      process.exit(1);
     }
 
     const s = spinner();
