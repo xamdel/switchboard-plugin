@@ -1,7 +1,7 @@
 import * as http from "node:http";
 import { fileURLToPath } from "node:url";
-import { PluginClient } from "./ws/ws-client.js";
-import { createStatusDisplay } from "./ws/display.js";
+import { PluginClient } from "./client/provider/ws/ws-client.js";
+import { createStatusDisplay } from "./client/provider/ws/display.js";
 
 // ---------------------------------------------------------------------------
 // Types

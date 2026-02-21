@@ -1,7 +1,7 @@
 import WebSocket from "ws";
 import { ServerMessageSchema, SIXERR_PROTOCOL_VERSION } from "../schemas/protocol.js";
-import type { OpenClawClientConfig } from "../relay/openclaw-client.js";
-import { handleIncomingRequest } from "../relay/request-forwarder.js";
+import type { OpenClawClientConfig } from "../../../relay/openclaw-client.js";
+import { handleIncomingRequest } from "../../../relay/request-forwarder.js";
 import { rawDataToString } from "./raw-data.js";
 import { computeBackoff, DEFAULT_RECONNECT_POLICY, type BackoffPolicy } from "./reconnect.js";
 

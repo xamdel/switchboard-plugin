@@ -7,7 +7,7 @@
   },
   "exports": {
     "./openclaw": "./src/openclaw/index.ts",
-    "./client": "./src/client/index.ts",
+    "./client": "./src/client/consumer/index.ts",
     "./setup": "./src/config/setup-programmatic.ts",
     "./start": "./src/start-programmatic.ts"
   },

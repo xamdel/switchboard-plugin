@@ -12,12 +12,12 @@ import { createCdpSigner } from "../wallet/cdp-signer.js";
 import { createLocalSigner } from "../wallet/local-signer.js";
 import { decryptKeystore } from "../wallet/keystore.js";
 import type { KeystoreV3 } from "../wallet/keystore.js";
-import { authenticateProgrammatic } from "../auth/programmatic.js";
+import { authenticateProgrammatic } from "../client/auth/programmatic.js";
 import { startPlugin } from "../plugin.js";
 import type { WalletSigner } from "../wallet/types.js";
-import { SixerrClient, createLocalPaymentSigner, createCdpPaymentSigner } from "../client/index.js";
+import { SixerrClient, createLocalPaymentSigner, createCdpPaymentSigner } from "../client/consumer/index.js";
 import { createHttpProxy } from "../proxy/http-proxy.js";
-import type { PaymentSigner } from "../client/types.js";
+import type { PaymentSigner } from "../client/consumer/types.js";
 
 // ---------------------------------------------------------------------------
 // Start Command
